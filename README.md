@@ -12,4 +12,10 @@
 
 [在nest里集成typeorm](./nest-typeorm)
 
+[nest里实现Session和JWT](./jwt-and-session/)
+
 [node操作redis](./redis-node-test/)
+
+[nest操作redis](./nest-redis/)
+
+[Mysql+TypeOrm+JWT实现登录注册](./jwt-and-session/)
