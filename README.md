@@ -21,3 +21,5 @@
 [Mysql+TypeOrm+JWT实现登录注册](./jwt-and-session/)
 
 [基于ACL实现权限登录](./acl-test/)
+
+[基于RBAC实现权限控制](./rbac-test/)
