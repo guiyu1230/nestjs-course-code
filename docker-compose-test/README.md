@@ -30,6 +30,51 @@ services:
 docker-compose up
 ```
 
+使用networks
+```yml
+services:
+  nest-app:
+    build: 
+      context: ./
+      dockerfile: ./Dockerfile
+    depends_on:
+      - mysql-container
+      - redis-container
+    ports:
+      - '3000:3000'
+    networks:
+      - common-network
+  mysql-container:
+    image: mysql:5.7
+    restart: always
+    ports:
+      - '3306:3306'
+    environment:
+      MYSQL_ROOT_PASSWORD: 123456
+      TZ: Asia/Shanghai
+    volumes:
+      - C:/Users/guiyu/code/mysql-data:/var/lib/mysql
+    command: 
+      --max_connections=1000
+      --character-set-server=utf8mb4
+      --collation-server=utf8mb4_general_ci
+      --default-authentication-plugin=mysql_native_password
+    networks:
+      - common-network
+  redis-container:
+    image: redis:latest
+    restart: always
+    ports:
+      - '6379:6379'
+    volumes:
+      - C:/Users/guiyu/code/redis-data:/data
+    networks:
+      - common-network
+networks:
+  common-network:
+    driver: bridge
+```
+
 这节我们通过 docker、docker-compose 两种方式来部署了 nest 项目。
 
 docker 的方式需要手动 docker build 来构建 nest 应用的镜像。
