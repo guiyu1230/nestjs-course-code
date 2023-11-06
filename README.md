@@ -31,3 +31,5 @@
 [如何动态读取不同环境的配置](./nest-config-test/)
 
 [为什么要使用Docker Compose?](./docker-compose-test/)
+
+[基于redis实现分布式session](./redis-session-test/)
