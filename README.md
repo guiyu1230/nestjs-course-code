@@ -33,3 +33,5 @@
 [为什么要使用Docker Compose?](./docker-compose-test/)
 
 [基于redis实现分布式session](./redis-session-test/)
+
+[Redis + 高德地图, 实现附近的充电宝](./nearby-search/)
