@@ -2,6 +2,8 @@
 
 [nest的基础功能](./nest-simple)
 
+[nest里如何打印日志](./logger-test/)
+
 [通过 mysql2 操作 mysql](./node_mysql)
 
 [typeorm的基础功能](./typeorm-mysql-test)
