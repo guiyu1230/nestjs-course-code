@@ -6,6 +6,8 @@
 
 [为什么Node里要用winston打印日志](./winston-test/)
 
+[nest集成日志框架winston](./nest-winston-test/)
+
 [通过 mysql2 操作 mysql](./node_mysql)
 
 [typeorm的基础功能](./typeorm-mysql-test)
