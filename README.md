@@ -43,3 +43,5 @@
 [Redis + 高德地图, 实现附近的充电宝](./nearby-search/README.md)
 
 [用Swagger 自动生成 api 文档](./swagger-test/README.md)
+
+[Node 如何发邮件](./mail-test/README.md)
