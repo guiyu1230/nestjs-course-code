@@ -2,6 +2,8 @@
 
 [nest的基础功能](./nest-simple/README.md)
 
+[大文件分片上传](./large-file-sharding-upload/README.md)
+
 [nest里如何打印日志](./logger-test/README.md)
 
 [为什么Node里要用winston打印日志](./winston-test/README.md)
