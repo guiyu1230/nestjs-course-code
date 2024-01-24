@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>前端临时授权</title>
+  <script src="https://unpkg.com/axios@1.6.5/dist/axios.min.js"></script>
+</head>
+<body>
+  <input id="fileInput" type="file"/>
+  <img src="http://gui-333.oss-cn-shanghai.aliyuncs.com/2%E5%93%81%E7%89%8C%E5%A2%99.gif" alt="">
+  <script>
+    const fileInput = document.getElementById('fileInput');
+
+    function getOSSInfo() {
+        return {
+            OSSAccessKeyId: 'LTAI5tA1FHEYVBFwEzxiz9L6',
+            Signature: 'Xz9VIm46+cR6E5molH7UlQSd5bU=',
+            policy: 'eyJleHBpcmF0aW9uIjoiMjAyNC0wMS0yNVQwNzo1MToyNS44OTFaIiwiY29uZGl0aW9ucyI6W1siY29udGVudC1sZW5ndGgtcmFuZ2UiLDAsMTA0ODU3NjAwMF1dfQ==',
+            host: 'http://gui-333.oss-cn-shanghai.aliyuncs.com'
+        }
+    }
+
+    fileInput.onchange = async () => {
+        const file = fileInput.files[0];
+
+        const ossInfo = await getOSSInfo();
+
+        const formdata = new FormData()
+
+        formdata.append('key', file.name);
+        formdata.append('OSSAccessKeyId', ossInfo.OSSAccessKeyId)
+        formdata.append('policy', ossInfo.policy)
+        formdata.append('signature', ossInfo.Signature)
+        formdata.append('success_action_status', '200')
+        formdata.append('file', file)
+
+        const res = await axios.post(ossInfo.host, formdata);
+        if(res.status === 200) {
+            
+            const img = document.createElement('img');
+            img.src = ossInfo.host + '/' + file.name
+            document.body.append(img);
+
+            alert('上传成功');
+        }
+    }
+  </script>
+</body>
+</html>
