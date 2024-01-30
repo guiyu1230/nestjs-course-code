@@ -55,3 +55,5 @@
 [实现基于邮箱验证码的登录/后端代码](./email-login-backend/README.md)
 
 [定时任务+Redis实现阅读量计数](./article-views/README.md)
+
+[Nest的3种定时任务](./schedule-task/README.md)
