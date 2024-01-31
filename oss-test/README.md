@@ -167,4 +167,59 @@ main();
 }
 ```
 
+---
+
+## minio 本地化部署oss服务
+
+私有部署，这种就可以自己搭一个 OSS 服务。
+
+### docker安装
+```sh
+docker pull bitnami/minio
+
+docker run -d --name minio \
+-p 9000:9000 -p 9001:9001 \
+-v /home/guiyu/minio:/bitnami/nimio/data \
+-e "MINIO_ROOT_USER=guiyu" \
+-e "MINIO_ROOT_PASSWORD=guiyu1234" \
+-e "MINIO_SERVER_URL=http://192.168.197.77:9000"  \
+bitnami/minio
+```
+
+使用代码
+```js
+const Minio = require('minio');
+const fs = require('fs');
+
+require('dotenv').config();
+
+const minioClient = new Minio.Client({
+  endPoint: '192.168.197.77',
+  port: 9000,
+  useSSL: false,
+  accessKey: process.env.minio_accessKeyId,
+  secretKey: process.env.minio_accessKeySecret
+})
+
+// 传输文件
+function put() {
+  minioClient.fPutObject('aaa', '497760668506042314.jpg', 'C:/Users/guiyu/Desktop/UI图/497760668506042314.jpg', function(err) {
+    if(err) return console.log(err);
+    console.log('上传成功');
+  })
+}
+
+// put();
+
+// 下载文件
+function get() {
+  minioClient.getObject('aaa', '497760668506042314.jpg', (err, stream) => {
+    if(err) return console.log(err);
+    stream.pipe(fs.createWriteStream('./public/497760668506042314.jpg'))
+  })
+}
+
+get();
+```
+
 

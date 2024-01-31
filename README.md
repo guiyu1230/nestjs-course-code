@@ -4,7 +4,7 @@
 
 [大文件分片上传](./large-file-sharding-upload/README.md)
 
-[最完美的 OSS 上传方案](./oss-test/README.md)
+[最完美的 OSS 上传方案:ali-oss和minio](./oss-test/README.md)
 
 [nest里如何打印日志](./logger-test/README.md)
 
