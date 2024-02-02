@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document</title>
+</head>
+<body>
+  <div>111111112</div>
+  <script>
+    const eventSource = new EventSource('/stream3');
+    eventSource.onmessage = ({ data }) => {
+      const info = JSON.parse(data);
+      console.log('New message', JSON.parse(data));
+      const msg = info.msg.replace(/\n/g, '<br>');
+      document.write('<div>'+ msg +'</div>');
+      if(info.msg === "finish" || info.msg === "finish\n") {
+        eventSource.close(); //关闭
+      }
+    };
+  </script>
+</body>
+</html>

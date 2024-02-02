@@ -59,3 +59,5 @@
 [Nest的3种定时任务](./schedule-task/README.md)
 
 [短链服务? 自己写一个](./short-url/README.md)
+
+[Nest 实现 Server Sent Event数据推送](./sse-test/README.md)
