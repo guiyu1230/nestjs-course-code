@@ -35,4 +35,29 @@ SELECT `User`.`id` AS `User_id`, `User`.`isFrozen` AS `User_isFrozen`, `User`.`i
 INSERT INTO `user_roles`(`usersId`, `rolesId`) VALUES (?, ?), (?, ?) -- PARAMETERS: [4,1,5,2]
 ```
 
+#### 2.3 编写`/user/login`登录接口和配置接口`class-validator`校验
+
+#### 2.4 添加`nestjs/jwt`配置和添加`access_token`和`refresh_token`配置
+
+#### 2.5 添加`access_token`和`refresh_token`到登录接口和编写`/user/fresh`刷新接口
+
+#### 2.6 添加`LoginGuard`做必登鉴权. 做`jwt`的`token`校验
+
+#### 2.7 添加`PermissionGuard`做接口权限鉴权. 根据`jwt`用户信息和接口权限对比.和`LoginGuard`搭配使用
+
+#### 2.7 添加`UserInfo`入参装饰器. 获取登录用户信息. 和`LoginGuard`搭配使用
+
+### 3. 用户管理模块 - `interceptor`和修改信息接口
+
+#### 3.1 添加一个修改响应内容的拦截器(`format-response`)。把响应的格式改成 `{code、message、data}`
+
+#### 3.2 添加一个接口访问记录的拦截器(`invoke-record`). 记录用户行为日志
+- 记录下访问的 ip、user agent、请求的 controller、method，接口耗时、响应内容，当前登录用户等信息。
+
+![image](https://p9-juejin.byteimg.com/tos-cn-i-k3u1fbpfcp/24060e0f32204907887ede38c1aa018c~tplv-k3u1fbpfcp-jj-mark:1512:0:0:0:q75.awebp)
+
+#### 3.3 添加一个 `/user/info` 接口. 实现查询用户信息的接口，用来回显数据
+
+#### 3.3 添加一个 `/user/update_password` 接口. 实现修改用户密码
+
 

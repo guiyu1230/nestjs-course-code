@@ -7,6 +7,9 @@ import { RegisterUserDto } from './dto/register-user.dto';
 import { RedisService } from 'src/redis/redis.service';
 import { Role } from './entities/role.entity';
 import { Permission } from './entities/permission.entity';
+import { LoginUserDto } from './dto/login-user.dto';
+import { LoginUserVo } from 'src/user/vo/login-user.vo';
+import { UpdateUserPasswordDto } from './dto/update-user-password.dto';
 
 @Injectable()
 export class UserService {
@@ -96,5 +99,107 @@ export class UserService {
     await this.permissionRepository.save([permission1, permission2]);
     await this.roleRepository.save([role1, role2]);
     await this.userRepository.save([user1, user2]);
+  }
+
+  async login(loginUserDto: LoginUserDto, isAdmin: boolean) {
+    const user = await this.userRepository.findOne({
+      where: {
+        username: loginUserDto.username,
+        isAdmin
+      },
+      relations: ['roles', 'roles.permissions']
+    });
+
+    if(!user) {
+      throw new HttpException('用户不存在', HttpStatus.BAD_REQUEST);
+    }
+
+    if(user.password !== md5(loginUserDto.password)) {
+      throw new HttpException('密码错误', HttpStatus.BAD_REQUEST);
+    }
+
+    const vo = new LoginUserVo();
+    vo.userInfo = {
+      id: user.id,
+      username: user.username,
+      nickName: user.nickName,
+      email: user.email,
+      phoneNumber: user.phoneNumber,
+      headPic: user.headPic,
+      createTime: user.createTime.getTime(),
+      isFrozen: user.isFrozen,
+      isAdmin: user.isAdmin,
+      roles: user.roles.map(item => item.name),
+      permissions: user.roles.reduce((arr, item) => {
+        item.permissions.forEach(permission => {
+          if(arr.indexOf(permission) === -1) {
+            arr.push(permission);
+          }
+        })
+        return arr;
+      }, [])
+    }
+
+    return vo;
+  }
+
+  async findUserById(userId: number, isAdmin: boolean) {
+    const user = await this.userRepository.findOne({
+      where: {
+        id: userId,
+        isAdmin
+      },
+      relations: ['roles', 'roles.permissions']
+    });
+
+    return {
+      id: user.id,
+      username: user.username,
+      isAdmin: user.isAdmin,
+      roles: user.roles.map(item => item.name),
+      permissions: user.roles.reduce((arr, item) => {
+          item.permissions.forEach(permission => {
+              if(arr.indexOf(permission) === -1) {
+                  arr.push(permission);
+              }
+          })
+          return arr;
+      }, [])
+    }
+  }
+
+  async findUserDetailById(userId: number) {
+    const user = await this.userRepository.findOne({
+      where: {
+        id: userId
+      }
+    });
+    return user;
+  }
+
+  async updatePassword(userId: number, passwordDto: UpdateUserPasswordDto) {
+    const captcha = await this.redisService.get(`update_password_captcha_${passwordDto.email}`);
+
+    if(!captcha) {
+      throw new HttpException('验证码已失效', HttpStatus.BAD_REQUEST);
+    }
+
+    if(passwordDto.captcha !== captcha) {
+      throw new HttpException('验证码不正确', HttpStatus.BAD_REQUEST);
+    }
+
+    const foundUser = await this.userRepository.findOneBy({
+      id: userId
+    })
+
+    foundUser.password = md5(passwordDto.password);
+
+    try {
+      await this.userRepository.save(foundUser);
+      return '密码修改成功';
+    } catch(e) {
+      this.logger.error(e, UserService);
+      return '密码修改失败';
+    }
   }
 }
