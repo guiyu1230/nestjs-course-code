@@ -1,7 +1,7 @@
 import { HttpException, HttpStatus, Inject, Injectable, Logger } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { md5 } from 'src/utils';
-import { Repository } from 'typeorm';
+import { Like, Repository } from 'typeorm';
 import { User } from './entities/user.entity';
 import { RegisterUserDto } from './dto/register-user.dto';
 import { RedisService } from 'src/redis/redis.service';
@@ -10,6 +10,7 @@ import { Permission } from './entities/permission.entity';
 import { LoginUserDto } from './dto/login-user.dto';
 import { LoginUserVo } from 'src/user/vo/login-user.vo';
 import { UpdateUserPasswordDto } from './dto/update-user-password.dto';
+import { UpdateUserDto } from './dto/update-user.dto';
 
 @Injectable()
 export class UserService {
@@ -200,6 +201,77 @@ export class UserService {
     } catch(e) {
       this.logger.error(e, UserService);
       return '密码修改失败';
+    }
+  }
+
+  async update(userId: number, updateUserDto: UpdateUserDto) {
+    const captcha = await this.redisService.get(`update_user_captcha_${updateUserDto.email}`);
+
+    if(!captcha) {
+      throw new HttpException('验证码已失效', HttpStatus.BAD_REQUEST);
+    }
+
+    if(updateUserDto.captcha !== captcha) {
+      throw new HttpException('验证码不正确', HttpStatus.BAD_REQUEST);
+    }
+
+    const foundUser = await this.userRepository.findOneBy({
+      id: userId
+    });
+
+    if(updateUserDto.nickName) {
+        foundUser.nickName = updateUserDto.nickName;
+    }
+    if(updateUserDto.headPic) {
+        foundUser.headPic = updateUserDto.headPic;
+    }
+
+    try {
+      await this.userRepository.save(foundUser);
+      return '用户信息修改成功';
+    } catch(e) {
+      this.logger.error(e, UserService);
+      return '用户信息修改失败';
+    }
+  }
+
+  async freezeUserById(id: number) {
+    const user = await this.userRepository.findOneBy({
+      id
+    });
+
+    user.isFrozen = true;
+
+    await this.userRepository.save(user);
+  }
+
+  async findUsersByPage(username: string, nickName: string, email: string, pageNo: number, pageSize: number) {
+    const skipCount = (pageNo - 1) * pageSize;
+
+    const condition: Record<string, any> = {};
+
+    if(username) {
+      condition.username = Like(`%${username}%`);
+    }
+
+    if(nickName) {
+      condition.nickName = Like(`%${nickName}%`);
+    }
+
+    if(email) {
+      condition.email = Like(`%${email}%`);
+    }
+
+    const [users, totalCount] = await this.userRepository.findAndCount({
+      select: ['id', 'username', 'nickName', 'email', 'phoneNumber', 'isFrozen', 'headPic', 'createTime'],
+      skip: skipCount,
+      take: pageSize,
+      where: condition
+    });
+
+    return {
+      users,
+      totalCount
     }
   }
 }

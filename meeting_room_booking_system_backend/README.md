@@ -60,4 +60,29 @@ INSERT INTO `user_roles`(`usersId`, `rolesId`) VALUES (?, ?), (?, ?) -- PARAMETE
 
 #### 3.3 添加一个 `/user/update_password` 接口. 实现修改用户密码
 
+#### 3.4 添加一个 `/update_password/captcha` 接口. 实现发送修改密码的邮箱验证码
+
+#### 3.5 添加一个 `/user/update` 接口. 实现修改用户信息(头像、昵称、邮箱)
+
+#### 3.6 添加一个 `update/captcha` 接口. 实现修改用户信息的发送验证码功能
+
+### 4. 用户管理模块 - 自定义错误处理加规范响应格式 和 用户列表和分页查询
+
+#### 4.1 配置`UnLoginFilter`自定义错误处理.未登录报错状态控制和规范返回数据格式
+- 添加了 `Filter` 用来对错误格式做转换，改成 {code、message、data} 的格式，
+```sh
+nest g filter unlogin --flat
+```
+#### 4.2 配置`custom-exception`自定义所有`HttpException`的处理逻辑
+```sh
+nest g filter custom-exception --flat
+```
+#### 4.3 实现`user/freeze`冻结用户功能
+
+#### 4.4 实现`user/list`分页查询用户列表
+
+
+
+
+
 

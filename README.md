@@ -68,4 +68,4 @@
 
 [为什么生产环境要用Typeorm的migration迁移功能?](./typeorm-migration/README.md)
 
-[会议室预定系统-用户模块管理](./meeting_room_booking_system_backend/README.md)
+[会议室预定系统-用户模块管理-用户列表和分页查询](./meeting_room_booking_system_backend/README.md)
