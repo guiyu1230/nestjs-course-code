@@ -83,6 +83,51 @@ nest g filter custom-exception --flat
 
 ### 5. 使用`swagger`生成接口文档
 
+### 6. 实现修改密码和修改用户信息功能以及上传头像功能
+```js
+// npm install @types/multer
+// import { storage } from 'src/my-file-storage'
+import * as multer from "multer";
+import * as fs from 'fs';
+
+const storage = multer.diskStorage({
+    destination: function (req, file, cb) {
+      try {
+        fs.mkdirSync('uploads');
+      }catch(e) {}
+      cb(null, 'uploads')
+    },
+    filename: function (req, file, cb) {
+      const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9) + '-' + file.originalname
+      cb(null, uniqueSuffix)
+    }
+});
+
+export { storage };
+
+// user.controller.ts
+@Post('upload')
+@UseInterceptors(FileInterceptor('file', {
+  dest: 'uploads',
+  storage,
+  limits: {
+    fileSize: 1024 * 1024 * 3
+  },
+  fileFilter(req, file, callback) {
+    const extname = path.extname(file.originalname);
+    if(['.png', '.jpg', '.gif'].includes(extname)) {
+      callback(null, true);
+    } else {
+      callback(new BadRequestException('只能传图片'), false);
+    }
+  }
+}))
+uploadFile(@UploadedFile() file: Express.Multer.File) {
+  console.log('file', file);
+  return file.path;
+}
+```
+
 
 
 
