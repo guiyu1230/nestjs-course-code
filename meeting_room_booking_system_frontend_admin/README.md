@@ -357,3 +357,18 @@ export function UserManage() {
     </div>
 }
 ```
+
+### 会议室系统-后台管理-用户信息修改和密码修改
+
+这节我们实现了管理端的用户信息修改和密码修改的页面。
+
+首先添加了一个和管理页面平级的二级路由，然后添加了两个组件。
+
+这两个页面都是表单，涉及到回显数据、发送验证码、上传文件、更新接口。
+
+这也是管理系统的常见功能。
+
+下节开始，我们就开始写会议室管理的功能了。
+
+- 添加了`/user/info_modify`和`/user/password_modify`页面
+- 添加了`/user/info`、`/user/admin/update`、`/user/update/captcha`和`/user/update_password/captcha`接口
