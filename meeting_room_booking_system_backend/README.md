@@ -128,6 +128,44 @@ uploadFile(@UploadedFile() file: Express.Multer.File) {
 }
 ```
 
+### 5 会议室管理模块
+
+#### 5.1 创建会议室数据表
+```sql
+CREATE TABLE `meeting_room` (
+  `id` int NOT NULL AUTO_INCREMENT COMMENT '会议室ID', 
+  `name` varchar(50) NOT NULL COMMENT '会议室名字', 
+  `capacity` int NOT NULL COMMENT '会议室容量', 
+  `location` varchar(50) NOT NULL COMMENT '会议室位置', 
+  `equipment` varchar(50) NOT NULL COMMENT '设备' DEFAULT '', 
+  `description` varchar(100) NOT NULL COMMENT '描述' DEFAULT '', 
+  `isBooked` tinyint NOT NULL COMMENT '是否被预定' DEFAULT 0, 
+  `createTime` datetime(6) NOT NULL COMMENT '创建时间' DEFAULT CURRENT_TIMESTAMP(6), 
+  `updateTime` datetime(6) NOT NULL COMMENT '修改时间' DEFAULT CURRENT_TIMESTAMP(6) ON UPDATE CURRENT_TIMESTAMP(6),
+   PRIMARY KEY (`id`)
+) ENGINE=InnoDB
+```
+
+#### 5.2 添加`/meeting-room/initData`方法. 新建初始数据
+
+#### 5.3 添加`repl`配置. 使用`get(MeetingRoomService).initData()`方法执行初始化
+
+#### 5.4 添加`/meeting-room/list`接口,获取会议室列表功能. 支持条件、分页筛选
+
+#### 5.5 添加`/meeting-room/create`接口,新建会议室
+
+#### 5.6 添加`/meeting-room/update`接口,修改会议室信息
+```sql
+query: SELECT `MeetingRoom`.`id` AS `MeetingRoom_id`, `MeetingRoom`.`name` AS `MeetingRoom_name`, `MeetingRoom`.`capacity` AS `MeetingRoom_capacity`, `MeetingRoom`.`location` AS `MeetingRoom_location`, `MeetingRoom`.`equipment` AS `MeetingRoom_equipment`, `MeetingRoom`.`description` AS `MeetingRoom_description`, `MeetingRoom`.`isBooked` AS `MeetingRoom_isBooked`, `MeetingRoom`.`createTime` AS `MeetingRoom_createTime`, `MeetingRoom`.`updateTime` AS `MeetingRoom_updateTime` FROM `meeting_room` `MeetingRoom` WHERE ((`MeetingRoom`.`id` = ?)) LIMIT 1 -- PARAMETERS: [4]
+
+query: UPDATE `meeting_room` SET `id` = ?, `name` = ?, `capacity` = ?, `location` = ?, `equipment` = ?, `description` = ?, `isBooked` = ?, `createTime` = ?, `updateTime` = ? WHERE `id` = ? -- PARAMETERS: [4,"海王星2",10,"四层西","白板、电视","海王星2会议室",0,"2024-03-24T23:07:56.700Z","2024-03-24T23:07:56.700Z",4]
+```
+
+#### 5.7 添加`/meeting-room/:id`接口,获取单会议室详细信息
+
+#### 5.8 添加`/meeting-room/:id DELETE`接口,删除指定会议室
+
+
 
 
 

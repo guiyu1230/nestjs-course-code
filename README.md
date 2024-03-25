@@ -68,7 +68,7 @@
 
 [为什么生产环境要用Typeorm的migration迁移功能?](./typeorm-migration/README.md)
 
-[会议室预定系统-swagger接口文档](./meeting_room_booking_system_backend/README.md)
+[会议室预定系统-会议室管理模块](./meeting_room_booking_system_backend/README.md)
 
 [会议室预订系统-前端模块-用户登录注册页面](./meeting_room_booking_system_frontend_user/README.md)
 
