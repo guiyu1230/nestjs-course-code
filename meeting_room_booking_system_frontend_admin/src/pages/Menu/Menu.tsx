@@ -1,5 +1,6 @@
 import { Outlet } from "react-router-dom";
 import { Menu as AntdMenu, MenuProps } from 'antd';
+import { router } from "../..";
 import './menu.css';
 
 const items: MenuProps['items'] = [
@@ -20,6 +21,24 @@ const items: MenuProps['items'] = [
         label: "统计"
     }
 ];
+const handleMenuItemClick: MenuProps['onClick'] = (info) => {
+    let path = '';
+    switch(info.key) {
+        case '1':
+            path = '/meeting_room_manage';
+            break;
+        case '2':
+            path = '/booking_manage';
+            break;    
+        case '3':
+            path = '/user_manage';
+            break;
+        case '4':
+            path = '/statistics';
+            break;                    
+    }
+    router.navigate(path);
+}
 
 export function Menu() {
     return <div id="menu-container">
@@ -27,6 +46,7 @@ export function Menu() {
             <AntdMenu
                 defaultSelectedKeys={['3']}
                 items={items}
+                onClick={handleMenuItemClick}
             />
         </div>
         <div className="content-area">

@@ -372,3 +372,12 @@ export function UserManage() {
 
 - 添加了`/user/info_modify`和`/user/password_modify`页面
 - 添加了`/user/info`、`/user/admin/update`、`/user/update/captcha`和`/user/update_password/captcha`接口
+
+### 会议室系统-后台管理-会议室增删改查
+
+- 添加会议室管理页`/meeting_room_manage`页面
+- 添加了`/meeting-room/list`会议室列表接口. 支持分页和条件筛选
+- 添加了`DELETE /meeting-room/:id`会议室删除接口
+- 添加了`/meeting-room/create`创建会议室接口
+- 添加了`GET /meeting-room/:id`查看会议室信息接口
+- 添加了`PUT /meeting-room/update`会议室修改接口
