@@ -165,6 +165,8 @@ query: UPDATE `meeting_room` SET `id` = ?, `name` = ?, `capacity` = ?, `location
 
 #### 5.8 添加`/meeting-room/:id DELETE`接口,删除指定会议室
 
+### 6. 会议室管理模块添加`swagger`接口文档
+
 
 
 

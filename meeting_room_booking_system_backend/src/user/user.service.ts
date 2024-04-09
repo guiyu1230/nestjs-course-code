@@ -103,6 +103,49 @@ export class UserService {
     await this.userRepository.save([user1, user2]);
   }
 
+  async initRolePermission() {
+    const permission1 = new Permission();
+    permission1.code = 'meeting-room/list';
+    permission1.description = '访问会议室 list 接口';
+
+    const permission2 = new Permission();
+    permission2.code = 'meeting-room/create';
+    permission2.description = '访问会议室 create 接口';
+
+    const permission3 = new Permission();
+    permission3.code = 'meeting-room';
+    permission3.description = '访问会议室接口';
+
+    const permission4 = new Permission();
+    permission4.code = 'meeting-room/update';
+    permission4.description = '访问会议室 update 接口';
+
+    const permission5 = new Permission();
+    permission5.code = 'meeting-room/delete';
+    permission5.description = '访问会议室 delete 接口';
+
+    const permissions = [permission1, permission2, permission3, permission4, permission5];
+
+    const role1 = await this.roleRepository.findOne({
+      where: {
+        name: '管理员'
+      },
+      relations: ['permissions']
+    })
+    role1.permissions.push(...permissions);
+
+    const role2 = await this.roleRepository.findOne({
+      where: {
+        name: '普通用户'
+      },
+      relations: ['permissions']
+    })
+    role2.permissions.push(permission1, permission3);
+
+    await this.permissionRepository.save(permissions);
+    await this.roleRepository.save([role1, role2]);
+  }
+
   async login(loginUserDto: LoginUserDto, isAdmin: boolean) {
     const user = await this.userRepository.findOne({
       where: {

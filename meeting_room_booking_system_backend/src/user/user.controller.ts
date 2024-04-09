@@ -81,6 +81,7 @@ export class UserController {
   @Get('init-data')
   async initData() {
     await this.userService.initData();
+    // await this.userService.initRolePermission();
     return 'done';
   }
 
