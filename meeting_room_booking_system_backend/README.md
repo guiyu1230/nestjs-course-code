@@ -167,7 +167,206 @@ query: UPDATE `meeting_room` SET `id` = ?, `name` = ?, `capacity` = ?, `location
 
 ### 6. 会议室管理模块添加`swagger`接口文档
 
+### 7. 会议室预定管理模块
 
+#### 7.1 创建订单表
+
+```js
+// src/booking/entities/booking.entity.ts
+import { MeetingRoom } from "src/meeting-room/entities/meeting-room.entity";
+import { User } from "src/user/entities/user.entity";
+import { Column, CreateDateColumn, Entity, ManyToOne, PrimaryGeneratedColumn, UpdateDateColumn } from "typeorm";
+
+@Entity()
+export class Booking {
+
+  @PrimaryGeneratedColumn()
+  id: number;
+
+  @Column({
+    comment: '会议开始时间'
+  })
+  startTime: Date;
+
+  @Column({
+    comment: '会议结束时间'
+  })
+  endTime: Date;
+
+  @Column({
+    length: 20,
+    comment: '状态(申请中、审批通过、审批驳回、已解除)',
+    default: '申请中'
+  })
+  status: string;
+
+  @Column({
+    length: 100,
+    comment: '备注',
+    default: ''
+  })
+  note: string;
+
+  @ManyToOne(() => User)
+  user: User
+
+  @ManyToOne(() => MeetingRoom)
+  room: MeetingRoom
+
+  @CreateDateColumn({
+    comment: '创建时间'
+  })
+  createTime: Date;
+
+  @UpdateDateColumn({
+    comment: '修改时间'
+  })
+  updateTime: Date;
+}
+```
+entity文件转成sql脚本
+```sql
+CREATE TABLE `booking` (
+  `id` int NOT NULL AUTO_INCREMENT, 
+  `startTime` datetime NOT NULL COMMENT '会议开始时间', 
+  `endTime` datetime NOT NULL COMMENT '会议结束时间', 
+  `status` varchar(20) NOT NULL COMMENT '状态(申请中、审批通过、审批驳回、已解除)' DEFAULT '申请中', 
+  `note` varchar(100) NOT NULL COMMENT '备注' DEFAULT '', 
+  `createTime` datetime(6) NOT NULL COMMENT '创建时间' DEFAULT CURRENT_TIMESTAMP(6), 
+  `updateTime` datetime(6) NOT NULL COMMENT '修改时间' DEFAULT CURRENT_TIMESTAMP(6) ON UPDATE CURRENT_TIMESTAMP(6), 
+  `userId` int NULL, 
+  `roomId` int NULL COMMENT '会议室ID', 
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB
+ALTER TABLE `booking` ADD CONSTRAINT `FK_336b3f4a235460dc93645fbf222` FOREIGN KEY (`userId`) REFERENCES `users`(`id`) ON DELETE NO ACTION ON UPDATE NO ACTION
+ALTER TABLE `booking` ADD CONSTRAINT `FK_769a5e375729258fd0bbfc0a456` FOREIGN KEY (`roomId`) REFERENCES `meeting_room`(`id`) ON DELETE NO ACTION ON UPDATE NO ACTION
+```
+
+
+#### 7.2 创建初始化订单生成接口`initData`
+#### 7.3 使用`repl`执行`initData`接口
+```sh
+npm run repl
+
+await get(BookingService).initData()
+
+# 调用booking/list接口
+await get(BookingService).find(1, 10, 'guang', '天王', '三层', 1695945600000, 1696032000000)
+```
+
+#### 7.4 创建`booking/list`接口. 根据条件查找 分页、用户名、会议室名、会议室位置、起始时间范围、结束时间范围
+```js
+// 根据条件查找列表: 
+async find(pageNo: number, pageSize: number, username: string, meetingRoomName: string, meetingRoomPosition: string, bookingTimeRangeStart: number, bookingTimeRangeEnd: number ) {
+    const skipCount = (pageNo - 1) * pageSize;
+
+    const [bookings, totalCount] = await this.entityManager.findAndCount(Booking, {
+      where: {
+        user: {
+          username: Like(`%${username}%`)
+        },
+        room: {
+          name: Like(`%${meetingRoomName}%`),
+          location: Like(`%${meetingRoomPosition}%`)
+        },
+        startTime: Between(new Date(bookingTimeRangeStart), new Date(bookingTimeRangeEnd))
+      },
+      relations: {
+        user: true,
+        room: true,
+      },
+      skip: skipCount,
+      take: pageSize
+    });
+
+    return {
+      bookings,
+      totalCount
+    }
+}
+```
+
+#### 7.5 添加预定会议接口`booking/add`
+```js
+async add(bookingDto: CreateBookingDto, userId: number) {
+    const meetingRoom = await this.entityManager.findOneBy(MeetingRoom, {
+      id: bookingDto.meetingRoomId
+    });
+    // 1. 查找会议室存不存在
+    if(!meetingRoom) {
+      throw new BadRequestException('会议室不存在');
+    }
+    // 2. 查找用户信息
+    const user = await this.entityManager.findOneBy(User, {
+      id: userId
+    });
+    // 3. 创建订单信息
+    const booking = new Booking();
+    booking.room = meetingRoom;
+    booking.user = user;
+    booking.startTime = new Date(bookingDto.startTime);
+    booking.endTime = new Date(bookingDto.endTime);
+    // 4. 查找该会议室是否时间段重叠
+    const res = await this.entityManager.findOneBy(Booking, {
+      room: {
+        id: meetingRoom.id
+      },
+      startTime: LessThanOrEqual(booking.startTime),
+      endTime: MoreThanOrEqual(booking.endTime)
+    });
+
+    if(res) {
+      throw new BadRequestException('该时间段已被预定');
+    }
+    // 5. 保存订单信息
+    await this.entityManager.save(Booking, booking);
+  }
+```
+
+#### 7.6 添加审批通过接口`booking/apply/:id`
+#### 7.7 添加审批驳回接口`booking/reject/:id`
+#### 7.8 添加预定解除接口`booking/unbind/:id`
+#### 7.9 添加催办邮件发送接口`booking/urge/:id`
+```js
+@Inject(RedisService)
+private redisService: RedisService;
+
+@Inject(EmailService)
+private emailService: EmailService;
+
+async urge(id: number) {
+    const flag = await this.redisService.get('urge_' + id);
+    // 1. 查询redis记录. 限制半小时催办一次
+    if(flag) {
+      return '半小时内只能催办一次，请耐心等待';
+    }
+    // 2. 通过redis获取管理员邮箱
+    let email = await this.redisService.get('admin_email');
+    // 2.1 如果redis没有. 数据库查询并同步到redis
+    if(!email) { 
+      const admin = await this.entityManager.findOne(User, {
+        select: {
+          email: true
+        },
+        where: {
+          isAdmin: true
+        }
+      });
+
+      email = admin.email
+
+      this.redisService.set('admin_email', admin.email);
+    }
+    // 3. 发送催办邮箱给管理员
+    this.emailService.sendMail({
+      to: email,
+      subject: '预定申请催办提醒',
+      html: `id 为 ${id} 的预定申请正在等待审批`
+    });
+    // 4. 添加一条半小时时长的催办记录到redis
+    this.redisService.set('urge_' + id, 1, 60 * 30);
+}
+```
 
 
 
