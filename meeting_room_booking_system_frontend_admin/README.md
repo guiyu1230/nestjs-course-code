@@ -381,3 +381,10 @@ export function UserManage() {
 - 添加了`/meeting-room/create`创建会议室接口
 - 添加了`GET /meeting-room/:id`查看会议室信息接口
 - 添加了`PUT /meeting-room/update`会议室修改接口
+
+### 会议室-后台管理-预定管理
+- 添加预定管理页`/booking_manage`
+- 添加`/booking/list`预定列表接口. 支持分页和条件筛选
+- 添加`/booking/apply/:id`审批通过接口
+- 添加`/booking/reject/:id`审批拒绝接口
+- 添加`/booking/unbind/:id`添加审批解除接口
