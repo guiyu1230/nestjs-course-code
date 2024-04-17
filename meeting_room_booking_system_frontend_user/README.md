@@ -116,3 +116,9 @@ async function refreshToken() {
 
 ### 3. 添加会议室预定系统
 - 3.1 实现会议室预定页面`/meeting_room_list`, 调用了`/meeting-room/list`接口,支持分页和条件筛选
+
+### 4. 添加会议室预定历史页面
+- 4.1 实现会议室预定历史页面`/booking_history`, 调用了`/booking/list`列表查询(分页、条件筛选)
+- 4.2 添加了`/booking/unbind/:id`解除预定接口
+- 4.3 给会议室预定页面`/meeting_room_list`页面. 添加预定功能: 添加会议表单
+- 4.4 添加`/booking/add`接口实现预定添加功能

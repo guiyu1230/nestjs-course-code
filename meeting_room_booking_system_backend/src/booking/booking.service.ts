@@ -140,8 +140,8 @@ export class BookingService {
     const booking = new Booking();
     booking.room = meetingRoom;
     booking.user = user;
-    booking.startTime = new Date(bookingDto.startTime);
-    booking.endTime = new Date(bookingDto.endTime);
+    booking.startTime = new Date(+bookingDto.startTime);
+    booking.endTime = new Date(+bookingDto.endTime);
 
     const res = await this.entityManager.findOneBy(Booking, {
       room: meetingRoom,

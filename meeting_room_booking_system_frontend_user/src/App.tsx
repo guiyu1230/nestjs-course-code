@@ -9,6 +9,9 @@ import { UpdateInfo } from './page/update_info/UpdateInfo';
 import { Menu } from './page/menu/Menu';
 import { MeetingRoomList } from './page/meeting_room_list/MeetingRoomList';
 import { BookingHistory } from './page/booking_history/BookingHistory';
+import { ConfigProvider } from 'antd';
+import zhCN from 'antd/locale/zh_CN';
+import 'dayjs/locale/zh-cn';
 import './App.css';
 
 
@@ -59,7 +62,9 @@ export const router = createBrowserRouter(routes);
 
 function App() {
   return (
-    <RouterProvider router={router} />
+    <ConfigProvider locale={zhCN}>
+      <RouterProvider router={router} />
+    </ConfigProvider>
   )
 }
 
