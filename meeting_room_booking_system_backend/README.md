@@ -368,7 +368,64 @@ async urge(id: number) {
 }
 ```
 
+### 8. 统计管理模块
 
+#### 8.1 创建统计管理模块 `nest g resource statistic`
 
+#### 8.2 添加用户使用次数统计接口`/statistic/userBookingCount`
 
+```js
+async userBookingCount(startTime: string, endTime: string) {
+    const res = await this.entityManager
+        .createQueryBuilder(Booking, 'b')
+        .select('u.id', 'userId')
+        .addSelect('u.username', 'username')
+        .leftJoin(User, 'u', 'b.userId = u.id')
+        .addSelect('count(1)', 'bookingCount')
+        .where('b.startTime between :time1 and :time2', {
+            time1: startTime, 
+            time2: endTime
+        })
+        .addGroupBy('b.user')
+        .getRawMany();
+    return res;
+}
+```
+
+```sql
+query: SELECT `u`.`id` AS `userId`, `u`.`username` AS `username`, count(1) AS `bookingCount` FROM `booking` `b` LEFT JOIN `users` `u` ON `b`.`userId` = `u`.`id` WHERE `b`.`startTime` between ? and ? GROUP BY `b`.`userId` -- PARAMETERS: ["2024-04-01","2024-04-30"]
+```
+
+#### 8.3 使用`repl`执行`userBookingCount`
+```sh
+npm run repl
+
+await get(StatisticService).userBookingCount('2024-04-01', '2024-04-24')
+
+await get(StatisticService).meetingRoomUsedCount('2024-04-01', '2024-04-24')
+```
+
+#### 8.4 添加会议室使用次数接口`/statistic/meetingRoomUsedCount`
+
+```js
+async meetingRoomUsedCount(startTime: string, endTime: string) {
+    const res = await this.entityManager
+        .createQueryBuilder(Booking, 'b')
+        .select('m.id', 'meetingRoomId')
+        .addSelect('m.name', 'meetingRoomName')
+        .leftJoin(MeetingRoom, 'm', 'b.roomId = m.id')
+        .addSelect('count(1)', 'usedCount')
+        .where('b.startTime between :time1 and :time2', {
+            time1: startTime, 
+            time2: endTime
+        })
+        .addGroupBy('b.roomId')
+        .getRawMany();
+    return res;
+}
+```
+
+```sql
+query: SELECT `m`.`id` AS `meetingRoomId`, `m`.`name` AS `meetingRoomName`, count(1) AS `usedCount` FROM `booking` `b` LEFT JOIN `meeting_room` `m` ON `b`.`roomId` = `m`.`id` WHERE `b`.`startTime` between ? and ? GROUP BY `b`.`roomId` -- PARAMETERS: ["2024-04-01","2024-04-30"] 
+```
 
