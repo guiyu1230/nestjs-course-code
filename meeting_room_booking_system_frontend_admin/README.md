@@ -388,3 +388,9 @@ export function UserManage() {
 - 添加`/booking/apply/:id`审批通过接口
 - 添加`/booking/reject/:id`审批拒绝接口
 - 添加`/booking/unbind/:id`添加审批解除接口
+
+### 会议室-后台管理-统计管理模块
+- 添加统计管理也`/statistic`
+- 引入统计图标`echarts`创建柱状图和饼状图
+- 添加`/statistic/userBookingCount`用户使用统计接口
+- 添加`/statistic/meetingRoomUsedCount`会议室使用统计接口
