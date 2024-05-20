@@ -87,3 +87,5 @@
 [Nest集成Etcd做注册中心、配置中心](./nest-etcd/README.md)
 
 [用Nodejs手写websocket协议](./my-websoket/READEME.md)
+
+[Nest开发Websocket服务](./nest-websocket/README.md)
