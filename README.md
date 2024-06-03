@@ -54,6 +54,8 @@
 
 [class-validator自定义内置装饰器](./class-validator-decorators/README.md)
 
+[序列化Entity.你不需要VO对象](./vo-test/README.md)
+
 [Node 如何发邮件](./mail-test/README.md)
 
 [实现基于邮箱验证码的登录/前端代码](./email-login-frontend/README.md)
