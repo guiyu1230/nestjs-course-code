@@ -38,6 +38,8 @@
 
 [基于acess_token和refresh_token实现无感知刷新登录状态](./access_token_and_refresh_token/README.md)
 
+[使用passport做身份认证](./nest-passport/README.md)
+
 [实现扫描二维码登录](./qrcode-login/README.md)
 
 [如何动态读取不同环境的配置](./nest-config-test/README.md)
