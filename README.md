@@ -40,6 +40,8 @@
 
 [使用passport做身份认证](./nest-passport/README.md)
 
+[passport实现github三方账号登录](./github-login/README.md)
+
 [实现扫描二维码登录](./qrcode-login/README.md)
 
 [如何动态读取不同环境的配置](./nest-config-test/README.md)
