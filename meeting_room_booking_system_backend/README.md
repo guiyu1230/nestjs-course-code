@@ -429,3 +429,69 @@ async meetingRoomUsedCount(startTime: string, endTime: string) {
 query: SELECT `m`.`id` AS `meetingRoomId`, `m`.`name` AS `meetingRoomName`, count(1) AS `usedCount` FROM `booking` `b` LEFT JOIN `meeting_room` `m` ON `b`.`roomId` = `m`.`id` WHERE `b`.`startTime` between ? and ? GROUP BY `b`.`roomId` -- PARAMETERS: ["2024-04-01","2024-04-30"] 
 ```
 
+### 9. 用migration初始化表和数据
+- 创建migration脚本
+```json
+{
+  "typeorm": "ts-node ./node_modules/typeorm/cli",
+  "migration:create": "npm run typeorm -- migration:create",
+  "migration:generate": "npm run typeorm -- migration:generate -d ./src/data-source.ts",
+  "migration:run": "npm run typeorm -- migration:run -d ./src/data-source.ts",
+  "migration:revert": "npm run typeorm -- migration:revert -d ./src/data-source.ts"
+}
+```
+
+- 创建data-source.ts文件
+```js
+import { DataSource } from "typeorm";
+import { config } from 'dotenv';
+
+import { Permission } from './user/entities/permission.entity';
+import { Role } from './user/entities/role.entity';
+import { User } from './user/entities/user.entity';
+import { MeetingRoom } from "./meeting-room/entities/meeting-room.entity";
+import { Booking } from "./booking/entities/booking.entity";
+
+config({ path: 'src/.env-migration' });
+
+console.log(process.env);
+
+export default new DataSource({
+    type: "mysql",
+    host: `${process.env.mysql_server_host}`,
+    port: +`${process.env.mysql_server_port}`,
+    username: `${process.env.mysql_server_username}`,
+    password: `${process.env.mysql_server_password}`,
+    database: `${process.env.mysql_server_database}`,
+    synchronize: false,
+    logging: true,
+    entities: [
+      User, Role, Permission, MeetingRoom, Booking
+    ],
+    poolSize: 10,
+    migrations: ['src/migrations/**.ts'],
+    connectorPackage: 'mysql2',
+    extra: {
+        authPlugin: 'sha256_password',
+    }
+});
+```
+
+- 把数据表给删掉
+- migration:create
+- 自己来填写sql
+```sh
+# 根据本地entity和数据表结构差异生成generate脚本
+npm run migration:generate src/migrations/init
+# 根据本地migration记录和数据库migration对比执行生成sql脚本
+npm run migration:run
+```
+
+- 生成migration数据
+- migration:generate
+```sh
+# 用create生成空的generate脚本
+npm run migration:create src/migrations/data
+# 根据本地migration记录和数据库migration对比执行生成sql脚本
+npm run migration:run
+```
