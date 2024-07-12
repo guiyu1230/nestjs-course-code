@@ -80,6 +80,8 @@
 
 [Nest 实现 Server Sent Event数据推送](./sse-test/README.md)
 
+[前端直传文件到Minio](./minio-fe-upload/README.md)
+
 [实现 Excel 导入导出](./exceljs-test/README.md)
 
 [Typeorm如何保存任意层级的关系](./typeorm-tree-entity-test/README.md)
