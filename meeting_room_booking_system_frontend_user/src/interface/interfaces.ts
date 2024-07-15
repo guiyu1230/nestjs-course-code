@@ -190,3 +190,7 @@ export async function bookingAdd(booking: CreateBooking) {
 export async function unbind(id: number) {
     return await axiosInstance.get('/booking/unbind/' + id);
 }
+
+export async function presignedUrl(filename: string) {
+    return axiosInstance.get(`/minio/presignedUrl?name=${filename}`);
+}

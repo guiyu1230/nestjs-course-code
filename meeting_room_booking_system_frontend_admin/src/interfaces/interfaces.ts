@@ -197,3 +197,7 @@ export async function userBookingCount(startTime: string, endTime: string) {
         }
     });
 }
+
+export async function presignedUrl(filename: string) {
+    return axiosInstance.get(`/minio/presignedUrl?name=${filename}`);
+}

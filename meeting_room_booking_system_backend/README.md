@@ -495,3 +495,142 @@ npm run migration:create src/migrations/data
 # 根据本地migration记录和数据库migration对比执行生成sql脚本
 npm run migration:run
 ```
+
+### 10. 创建minio上传图片
+- 文件上传从基于 multer 实现，保存在项目目录下，换成了基于 minio 实现的 OSS 服务。
+- 使用`minio`oss服务上传代替本地接口上传`/user/upload`
+- 联动**minio-fe-upload**服务. 调用`minioClient.presignedPutObject`生成权限url
+- 然后前端将文件上传到该url. 实现前端直传`minio oss`
+
+#### 10.1 创建minio OSS服务
+```sh
+docker pull bitnami/minio
+
+docker run -d --name minio \
+-p 9000:9000 -p 9001:9001 \
+-v /home/guiyu/minio:/bitnami/nimio/data \
+-e "MINIO_ROOT_USER=guiyu" \
+-e "MINIO_ROOT_PASSWORD=guiyu1234" \
+-e "MINIO_SKIP_CLIENT=yes" \
+-e "MINIO_SERVER_URL=http://localhost:9000"  \
+bitnami/minio
+```
+
+```sh
+npm install --save minio
+
+nest g module minio
+
+nest g controller minio --no-spec
+
+```
+
+```js
+// minio.module.ts
+import { Global, Module } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
+import * as Minio from 'minio';
+
+@Global()
+@Module({
+    providers: [
+        {
+            provide: 'MINIO_CLIENT',
+            async useFactory(configService: ConfigService) {
+                const client = new Minio.Client({
+                    endPoint: configService.get('minio_endpoint'),
+                    port: +configService.get('minio_port'),
+                    useSSL: false,
+                    accessKey: configService.get('minio_access_key'),
+                    secretKey: configService.get('minio_secret_key')
+                })
+                return client;
+            },
+            inject: [ConfigService]
+          },
+    ],
+    exports: ['MINIO_CLIENT']
+})
+export class MinioModule {}
+
+// minio.controller.ts
+import { Controller, Get, Inject, Query } from '@nestjs/common';
+import * as Minio from 'minio';
+
+@Controller('minio')
+export class MinioController {
+
+    @Inject('MINIO_CLIENT')
+    private minioClient: Minio.Client;
+
+    @Get('presignedUrl') 
+    presignedPutObject(@Query('name') name: string) {
+        // 生成前端直传文件到oss的带权限url
+        return this.minioClient.presignedPutObject('meeting-room-booking-system', name, 3600);
+    }
+}
+```
+
+#### 10.2 前端上传逻辑
+- 1.从服务端获取直传文件到oss的url
+- 2.直传文件到oss
+```js
+import { InboxOutlined } from "@ant-design/icons";
+import { message } from "antd";
+import Dragger, { DraggerProps } from "antd/es/upload/Dragger";
+import { presignedUrl } from "../../interfaces/interfaces";
+import axios from "axios";
+
+interface HeadPicUploadProps {
+    value?: string;
+    onChange?: Function
+}
+
+let onChange: Function;
+
+const props: DraggerProps = {
+    name: 'file',
+    // action: 'http://localhost:3005/user/upload',
+    action: async (file) => {
+        // 1.从服务端获取直传文件到oss的url
+        const res = await presignedUrl(file.name);
+        return res.data.data;
+    },
+    async customRequest(options) {
+        const { onSuccess, file, action } = options;
+        // 2.直传文件到oss
+        const res = await axios.put(action, file);
+
+        onSuccess!(res.data);
+    },
+    onChange(info) {
+        const { status } = info.file;
+        if (status === 'done') {
+            // onChange(info.file.response.data);
+            onChange('http://localhost:9000/meeting-room-booking-system/' + info.file.name);
+            message.success(`${info.file.name} 文件上传成功`);
+        } else if (status === 'error') {
+            message.error(`${info.file.name} 文件上传失败`);
+        }
+    }
+};
+
+const dragger = <Dragger {...props}>
+    <p className="ant-upload-drag-icon">
+        <InboxOutlined />
+    </p>
+    <p className="ant-upload-text">点击或拖拽文件到这个区域来上传</p>
+</Dragger>
+
+export function HeadPicUpload(props: HeadPicUploadProps) {
+
+    onChange = props.onChange!
+
+    return props?.value ? <div>
+        <img src={props.value} alt="头像" width="100" height="100"/>
+        {dragger}
+    </div>: <div>
+        {dragger}
+    </div>
+}
+```

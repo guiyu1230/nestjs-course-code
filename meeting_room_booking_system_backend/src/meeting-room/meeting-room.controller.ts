@@ -43,7 +43,7 @@ export class MeetingRoomController {
     type: MeetingRoomListVo
   })
   @RequireLogin()
-  @RequirePermission('meeting-room/list')
+  // @RequirePermission('meeting-room/list')
   @Get('list')
   async list(
     @Query('pageNo', new DefaultValuePipe(1), generateParseIntPipe('pageNo')) pageNo: number,
