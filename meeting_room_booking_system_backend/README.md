@@ -634,3 +634,235 @@ export function HeadPicUpload(props: HeadPicUploadProps) {
     </div>
 }
 ```
+
+### 11. Google登录授权
+#### 11.1 passport local授权
+```sh
+npm install --save @nestjs/passport passport
+
+npm install --save passport-local
+npm install --save-dev @types/passport-local
+
+nest g module auth
+```
+本地策略
+```ts
+// auth/local.strategy.ts
+import { Strategy } from "passport-local";
+import { PassportStrategy } from "@nestjs/passport";
+import { Inject, Injectable } from "@nestjs/common";
+import { UserService } from "src/user/user.service";
+import { LoginUserDto } from "src/user/dto/login-user.dto";
+
+@Injectable()
+export class LocalStrategy extends PassportStrategy(Strategy) {
+
+  @Inject(UserService)
+  private userService: UserService;
+
+  async validate(username: string, password: string) {
+    const dto = new LoginUserDto();
+    dto.username = username;
+    dto.password = password;
+
+    const user = await this.userService.login(dto, false);
+    return user;
+  }
+}
+
+// auth/auth.module.ts
+import { Module } from '@nestjs/common';
+import { LocalStrategy } from './local.strategy';
+import { UserModule } from 'src/user/user.module';
+import { GoogleStrategy } from './google.strategy';
+
+@Module({
+  imports: [UserModule],
+  providers: [LocalStrategy, GoogleStrategy]
+})
+export class AuthModule {}
+
+// src/user/user.controller.ts
+@UseGuards(AuthGuard('local'))
+@Post('login')
+async userLogin(@UserInfo() vo: LoginUserVo) {}
+```
+
+#### 11.2 passport google授权
+```sh
+npm install --save passport-google-oauth20
+npm install --save-dev @types/passport-google-oauth20
+# user.entity.ts 添加loginType字段后
+npm run migration:generate src/migrations/add-user-loginType-column
+npm run migration:run
+```
+
+```ts
+// google.strategy.ts
+import { Injectable } from '@nestjs/common';
+import { PassportStrategy } from '@nestjs/passport';
+import { Strategy } from 'passport-google-oauth20';
+
+@Injectable()
+export class GoogleStrategy extends PassportStrategy(Strategy, 'google') {
+  constructor() {
+    super({
+      clientID: 'google_clientID',
+      clientSecret: 'google_clientSecret',
+      callbackURL: 'http://localhost:3005/user/callback/google',
+      scope: ['email', 'profile'],
+    });
+  }
+
+  validate (accessToken: string, refreshToken: string, profile: any) {
+    const { name, emails, photos } = profile
+    const user = {
+      email: emails[0].value,
+      firstName: name.givenName,
+      lastName: name.familyName,
+      picture: photos[0].value,
+      accessToken
+    }
+    return user;
+  }
+}
+
+// user.controller.ts
+@Get('google')
+@UseGuards(AuthGuard('google'))
+async googleAuth() {}
+
+@Get('callback/google')
+@UseGuards(AuthGuard('google'))
+googleAuthRedirect(@Req() req) {
+    if (!req.user) {
+      return 'No user from google'
+    }
+
+    return {
+      message: 'User information from google',
+      user: req.user
+    }
+}
+```
+
+#### 11.3 添加user.entity.ts 添加 loginType 字段：
+```ts
+// user.entity.ts
+@Column({
+    type: 'int',
+    comment: '登录类型, 0 用户名密码登录, 1 Google 登录, 2 Github 登录',
+    default: 0
+})
+loginType: LoginType;
+
+export enum LoginType {
+    USERNAME_PASSWORD = 0,
+    GOOGLE = 1,
+    GITHUB = 2
+}
+```
+
+- 执行`npm run migration:run`后
+```sql
+ALTER TABLE `users` ADD `loginType` int NOT NULL COMMENT '登录类型, 0 用户密码登录, 1 Google登录, 2 Github登录' DEFAULT '0'
+```
+- 添加google登录授权类型
+```ts
+// user.service.ts
+async registerByGoogleInfo(email: string, nickName: string, headPic: string) {
+    const newUser = new User();
+    newUser.email = email;
+    newUser.nickName = nickName;
+    newUser.headPic = headPic;
+    newUser.password = '';
+    newUser.username = email + Math.random().toString().slice(2, 10);
+    newUser.loginType = LoginType.GOOGLE;
+    newUser.isAdmin = false;
+
+    return this.userRepository.save(newUser);
+}
+```
+
+#### 11.4 添加重定向和cookie解析
+```sh
+npm install --save cookie-parser
+
+npm install --save-dev @types/cookie-parser
+
+# app.use(cookieParser());
+```
+- **google授权登录策略**
+- **cookie携带登录信息**
+- **res重定向到首页**
+```ts
+@Get('google')
+@UseGuards(AuthGuard('google'))
+async googleAuth() {}
+
+@Get('callback/google')
+@UseGuards(AuthGuard('google'))
+async googleAuthRedirect(@Req() req, @Res() res: Response) {
+  if (!req.user) {
+    throw new BadRequestException('google 登录失败');
+  }
+
+  const foundUser = await this.userService.findUserByEmail(req.user.email);
+  // 是否已注册
+  if(foundUser) {
+    const vo = new LoginUserVo();
+    vo.userInfo = foundUser
+    vo.accessToken = this.jwtService.sign({
+      userId: vo.userInfo.id,
+      username: vo.userInfo.username,
+      email: vo.userInfo.email,
+      roles: vo.userInfo.roles,
+      permissions: vo.userInfo.permissions
+    }, {
+      expiresIn: this.configService.get('jwt_access_token_expires_time') || '30m'
+    });
+
+    vo.refreshToken = this.jwtService.sign({
+      userId: vo.userInfo.id
+    }, {
+      expiresIn: this.configService.get('jwt_refresh_token_expres_time') || '7d'
+    });
+    // cookie携带登录信息
+    res.cookie('userInfo', JSON.stringify(vo.userInfo));
+    res.cookie('accessToken', vo.accessToken);
+    res.cookie('refreshToken', vo.refreshToken);
+  } else {
+
+    const user = await this.userService.registerByGoogleInfo(
+      req.user.email,
+      req.user.firstName + ' ' + req.user.lastName,
+      req.user.picture
+    );
+
+    const vo = new LoginUserVo();
+    vo.userInfo = user
+
+    vo.accessToken = this.jwtService.sign({
+      userId: vo.userInfo.id,
+      username: vo.userInfo.username,
+      email: vo.userInfo.email,
+      roles: vo.userInfo.roles,
+      permissions: vo.userInfo.permissions
+    }, {
+      expiresIn: this.configService.get('jwt_access_token_expires_time') || '30m'
+    });
+  
+    vo.refreshToken = this.jwtService.sign({
+      userId: vo.userInfo.id
+    }, {
+      expiresIn: this.configService.get('jwt_refresh_token_expres_time') || '7d'
+    });
+    // cookie携带登录信息
+    res.cookie('userInfo', JSON.stringify(vo.userInfo));
+    res.cookie('accessToken', vo.accessToken);
+    res.cookie('refreshToken', vo.refreshToken);
+  }
+  // res重定向到首页
+  res.redirect('http://localhost:3000/');
+}
+```

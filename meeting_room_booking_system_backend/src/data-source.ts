@@ -9,8 +9,6 @@ import { Booking } from "./booking/entities/booking.entity";
 
 config({ path: 'src/.env-migration' });
 
-console.log(process.env);
-
 export default new DataSource({
   type: "mysql",
   host: `${process.env.mysql_server_host}`,

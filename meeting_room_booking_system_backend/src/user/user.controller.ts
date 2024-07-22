@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, Inject, Query, UnauthorizedException, BadRequestException, DefaultValuePipe, HttpStatus, UseInterceptors, UploadedFile } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, Inject, Query, UnauthorizedException, BadRequestException, DefaultValuePipe, HttpStatus, UseInterceptors, UploadedFile, UseGuards, Req, Res } from '@nestjs/common';
 import { UserService } from './user.service';
 import { RegisterUserDto } from './dto/register-user.dto';
 import { LoginUserDto } from './dto/login-user.dto';
@@ -18,6 +18,8 @@ import { UserListVo } from './vo/user-list.vo';
 import { FileInterceptor } from '@nestjs/platform-express';
 import * as path from 'path';
 import { storage } from 'src/my-file-storage';
+import { AuthGuard } from '@nestjs/passport';
+import { Response } from 'express';
 
 @ApiTags('用户管理模块')
 @Controller('user')
@@ -96,10 +98,9 @@ export class UserController {
     description: '用户信息和 token',
     type: LoginUserVo
   })
+  @UseGuards(AuthGuard('local'))
   @Post('login')
-  async userLogin(@Body() loginUser: LoginUserDto) {
-    const vo = await this.userService.login(loginUser, false);
-
+  async userLogin(@UserInfo() vo: LoginUserVo) {
     vo.accessToken = this.jwtService.sign({
       userId: vo.userInfo.id,
       username: vo.userInfo.username,
@@ -189,6 +190,107 @@ export class UserController {
     } catch(e) {
       throw new UnauthorizedException('token 已失效, 请重新登录');
     }
+  }
+
+  @Get('google')
+  @UseGuards(AuthGuard('google'))
+  async googleAuth() {}
+
+  @Get('callback/google')
+  @UseGuards(AuthGuard('google'))
+  async googleAuthRedirect(@Req() req, @Res() res: Response) {
+    if (!req.user) {
+      throw new BadRequestException('google 登录失败');
+    }
+
+    const foundUser = await this.userService.findUserByEmail(req.user.email);
+    // 是否已注册
+    if(foundUser) {
+      const vo = new LoginUserVo();
+      vo.userInfo = {
+        id: foundUser.id,
+        username: foundUser.username,
+        nickName: foundUser.nickName,
+        email: foundUser.email,
+        phoneNumber: foundUser.phoneNumber,
+        headPic: foundUser.headPic,
+        createTime: foundUser.createTime.getTime(),
+        isFrozen: foundUser.isFrozen,
+        isAdmin: foundUser.isAdmin,
+        roles: foundUser.roles.map(item => item.name),
+        permissions: foundUser.roles.reduce((arr, item) => {
+            item.permissions.forEach(permission => {
+                if(arr.indexOf(permission) === -1) {
+                    arr.push(permission);
+                }
+            })
+            return arr;
+        }, [])
+      }
+      vo.accessToken = this.jwtService.sign({
+        userId: vo.userInfo.id,
+        username: vo.userInfo.username,
+        email: vo.userInfo.email,
+        roles: vo.userInfo.roles,
+        permissions: vo.userInfo.permissions
+      }, {
+        expiresIn: this.configService.get('jwt_access_token_expires_time') || '30m'
+      });
+
+      vo.refreshToken = this.jwtService.sign({
+        userId: vo.userInfo.id
+      }, {
+        expiresIn: this.configService.get('jwt_refresh_token_expres_time') || '7d'
+      });
+
+      res.cookie('userInfo', JSON.stringify(vo.userInfo));
+      res.cookie('accessToken', vo.accessToken);
+      res.cookie('refreshToken', vo.refreshToken);
+    } else {
+
+      const user = await this.userService.registerByGoogleInfo(
+        req.user.email,
+        req.user.firstName + ' ' + req.user.lastName,
+        req.user.picture
+      );
+  
+      const vo = new LoginUserVo();
+      vo.userInfo = {
+        id: user.id,
+        username: user.username,
+        nickName: user.nickName,
+        email: user.email,
+        phoneNumber: user.phoneNumber,
+        headPic: user.headPic,
+        createTime: user.createTime.getTime(),
+        isFrozen: user.isFrozen,
+        isAdmin: user.isAdmin,
+        roles: [],
+        permissions: []
+      }
+  
+      vo.accessToken = this.jwtService.sign({
+        userId: vo.userInfo.id,
+        username: vo.userInfo.username,
+        email: vo.userInfo.email,
+        roles: vo.userInfo.roles,
+        permissions: vo.userInfo.permissions
+      }, {
+        expiresIn: this.configService.get('jwt_access_token_expires_time') || '30m'
+      });
+    
+      vo.refreshToken = this.jwtService.sign({
+        userId: vo.userInfo.id
+      }, {
+        expiresIn: this.configService.get('jwt_refresh_token_expres_time') || '7d'
+      });
+
+      res.cookie('userInfo', JSON.stringify(vo.userInfo));
+      res.cookie('accessToken', vo.accessToken);
+      res.cookie('refreshToken', vo.refreshToken);
+    }
+    
+    res.redirect('http://localhost:3000/');
   }
 
   @Get('admin/refresh')

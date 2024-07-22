@@ -9,7 +9,6 @@ import * as Minio from 'minio';
     {
       provide: 'MINIO_CLIENT',
       async useFactory(configService: ConfigService) {
-        console.log(configService.get('minio_endpoint'), configService.get('minio_port'))
         const client = new Minio.Client({
           endPoint: configService.get('minio_endpoint'),
           port: +configService.get('minio_port'),
