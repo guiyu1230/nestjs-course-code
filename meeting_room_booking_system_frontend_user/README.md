@@ -122,3 +122,35 @@ async function refreshToken() {
 - 4.2 添加了`/booking/unbind/:id`解除预定接口
 - 4.3 给会议室预定页面`/meeting_room_list`页面. 添加预定功能: 添加会议表单
 - 4.4 添加`/booking/add`接口实现预定添加功能
+
+### 5. 添加passport-google授权
+- 调用`http://localhost:3005/user/google`接口.跳转到google授权页授权
+- 授权成功后调用`http://localhost:3005/user/callback/google`接口可拿到登录信息并设置到cookie里.并重定向到`http://localhost:3000`首页
+- 前端首页`http://localhost:3000`读取cookie.并将值复制到localStorage里.最后删除cookie
+
+```sh
+npm install --save js-cookie
+npm i --save-dev @types/js-cookie
+```
+- index.tsx 首页读取cookie并授权
+```js
+// index.tsx 首页读取cookie并授权
+useEffect(() => {
+    const userInfo = cookies.get('userInfo');
+    const accessToken = cookies.get('accessToken');
+    const refreshToken = cookies.get('refreshToken');
+
+    if(userInfo && accessToken && refreshToken) {
+        localStorage.setItem('user_info', userInfo);
+        localStorage.setItem('access_token', accessToken);
+        localStorage.setItem('refresh_token', refreshToken);
+
+        cookies.remove('userInfo');
+        cookies.remove('accessToken');
+        cookies.remove('refreshToken');
+    }
+}, []);
+```
+#### 最佳跨域授权方式: 
+#### 1. 将登录信息放入到cookie里
+#### 2. 重定向到目标页面. 实现跨域跳转和授权
