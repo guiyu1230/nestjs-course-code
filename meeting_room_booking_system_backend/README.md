@@ -866,3 +866,18 @@ async googleAuthRedirect(@Req() req, @Res() res: Response) {
   res.redirect('http://localhost:3000/');
 }
 ```
+
+### 12. 代码优化
+- Google登录策略密钥添加到`.env`文件中
+-  `ConfigModule` 的 `envFilePath` 指定多个 `.env`文件
+```js
+// 当指定多个 .env 文件时，配置会做合并，但是相同的 key 前面的配置生效。
+ConfigModule.forRoot({
+  isGlobal: true,
+  envFilePath: [ path.join(__dirname, '.env'), path.join(__dirname, '.dev.env')]
+})
+```
+
+- `docker-compose.yml`添加`minio`配置
+- 使用 `@nestjs/mapped-types` 的 `PartialType、PickType、OmitType、IntersectionType` 来灵活创建 dto。
+- captcha：验证码用完之后就从 `redis` 中删掉，并且前端提示验证码失效
