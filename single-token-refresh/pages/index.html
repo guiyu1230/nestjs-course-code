@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>single token refresh</title>
+</head>
+<body>
+  <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+  <script>
+    axios.interceptors.request.use(function(config) {
+      const accessToken = localStorage.getItem('access_token');
+
+      if(accessToken) {
+        config.headers.authorization = 'Bearer ' + accessToken;
+      }
+      return config;
+    })
+    axios.interceptors.response.use(
+      (response) => {
+        const newToken = response.headers['token'];
+        
+        if(newToken) {
+          localStorage.setItem('access_token', newToken);
+        }
+        return response;
+      }
+    )
+    async function init() {
+      const res = await axios.post('http://localhost:3000/user/login', {
+        username: 'guang',
+        password: '123456'
+      });
+      console.log(res);
+      localStorage.setItem('access_token', res.data);
+
+      const res2 = await axios.get('http://localhost:3000/bbb');
+      console.log(res2);
+    }
+    init();
+  </script>
+</body>
+</html>
