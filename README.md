@@ -6,7 +6,7 @@
 
 [大文件分片上传](./large-file-sharding-upload/README.md)
 
-[最完美的 OSS 上传方案ali-oss和minio](./oss-test/README.md)
+[最完美的OSS上传方案ali-oss和minio](./oss-test/README.md)
 
 [nest里如何打印日志](./logger-test/README.md)
 
@@ -14,7 +14,7 @@
 
 [nest集成日志框架winston](./nest-winston-test/README.md)
 
-[通过 mysql2 操作 mysql](./node_mysql/README.md)
+[通过mysql2操作mysql](./node_mysql/README.md)
 
 [typeorm的基础功能](./typeorm-mysql-test/README.md)
 
@@ -30,7 +30,7 @@
 
 [nest操作redis](./nest-redis/README.md)
 
-[Mysql+TypeOrm+JWT实现登录注册](./jwt-and-session/README.md)
+[Mysql加TypeOrm加JWT实现登录注册](./jwt-and-session/README.md)
 
 [基于ACL实现权限登录](./acl-test/README.md)
 
@@ -54,7 +54,7 @@
 
 [基于redis实现分布式session](./redis-session-test/README.md)
 
-[Redis+高德地图,实现附近的充电宝](./nearby-search/README.md)
+[Redis和高德地图实现附近的充电宝](./nearby-search/README.md)
 
 [用Swagger自动生成api文档](./swagger-test/README.md)
 
@@ -62,7 +62,7 @@
 
 [class-validator自定义内置装饰器](./class-validator-decorators/README.md)
 
-[序列化Entity.你不需要VO对象](./vo-test/README.md)
+[序列化Entity你不需要VO对象](./vo-test/README.md)
 
 [手写序列化Entity的拦截器](./serializer-interceptor-test/README.md)
 
@@ -72,7 +72,7 @@
 
 [实现基于邮箱验证码的登录-后端代码](./email-login-backend/README.md)
 
-[定时任务+Redis实现阅读量计数](./article-views/README.md)
+[定时任务加Redis实现阅读量计数](./article-views/README.md)
 
 [Nest的3种定时任务](./schedule-task/README.md)
 
@@ -80,11 +80,11 @@
 
 [短链服务自己写一个](./short-url/README.md)
 
-[Nest 实现 Server Sent Event数据推送](./sse-test/README.md)
+[Nest实现ServerSentEvent数据推送](./sse-test/README.md)
 
 [前端直传文件到Minio](./minio-fe-upload/README.md)
 
-[实现 Excel 导入导出](./exceljs-test/README.md)
+[实现Excel导入导出](./exceljs-test/README.md)
 
 [Typeorm如何保存任意层级的关系](./typeorm-tree-entity-test/README.md)
 
@@ -106,10 +106,12 @@
 
 [用Etch实现微服务配置中心和注册中心](./etcd-test/READEME.md)
 
-[Nest集成Etcd做注册中心、配置中心](./nest-etcd/README.md)
+[Nest集成Etcd做注册中心配置中心](./nest-etcd/README.md)
+
+[用Nacos实现微服务配置中心和注册中心](./nacos-node-test/README.md)
 
 [用Nodejs手写websocket协议](./my-websoket/READEME.md)
 
 [Nest开发Websocket服务](./nest-websocket/README.md)
 
-[基于Socket.io的room实现群聊](./group-chat-room/README.md)
+[基于SocketIo的room实现群聊](./group-chat-room/README.md)
