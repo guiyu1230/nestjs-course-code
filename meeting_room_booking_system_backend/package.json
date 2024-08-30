@@ -41,6 +41,7 @@
     "cookie-parser": "^1.4.6",
     "minio": "^8.0.1",
     "mysql2": "^3.9.1",
+    "nest-winston": "^1.9.7",
     "nodemailer": "^6.9.10",
     "passport": "^0.7.0",
     "passport-google-oauth20": "^2.0.0",
@@ -49,7 +50,9 @@
     "reflect-metadata": "^0.1.13",
     "rxjs": "^7.8.1",
     "socks-proxy-agent": "^8.0.4",
-    "typeorm": "^0.3.20"
+    "typeorm": "^0.3.20",
+    "winston": "^3.13.1",
+    "winston-daily-rotate-file": "^5.0.0"
   },
   "devDependencies": {
     "@nestjs/cli": "^10.0.0",

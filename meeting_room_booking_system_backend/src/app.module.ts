@@ -21,6 +21,10 @@ import { StatisticModule } from './statistic/statistic.module';
 import { MinioModule } from './minio/minio.module';
 import { AuthModule } from './auth/auth.module';
 import * as path from 'path';
+import * as winston from 'winston';
+import { utilities, WinstonModule, WinstonLogger, WINSTON_MODULE_NEST_PROVIDER } from 'nest-winston';
+import { CustomTypeOrmLogger } from './CustomTypeOrmLogger';
+import 'winston-daily-rotate-file';
 
 @Module({
   imports: [
@@ -43,7 +47,7 @@ import * as path from 'path';
       envFilePath: [path.join(__dirname, '.env'), path.join(__dirname, '.dev.env')]
     }),
     TypeOrmModule.forRootAsync({
-      useFactory(configService: ConfigService) {
+      useFactory(configService: ConfigService, logger: WinstonLogger) {
         return {
           type: "mysql",
           host: configService.get('mysql_server_host'),
@@ -53,6 +57,7 @@ import * as path from 'path';
           database: configService.get('mysql_server_database'),
           synchronize: false,
           logging: true,
+          logger: new CustomTypeOrmLogger(logger),
           entities: [
             User, Role, Permission, MeetingRoom, Booking
           ],
@@ -63,6 +68,35 @@ import * as path from 'path';
           }
         }
       },
+      inject: [ConfigService, WINSTON_MODULE_NEST_PROVIDER]
+    }),
+    WinstonModule.forRootAsync({
+      useFactory: (configService: ConfigService) => ({
+        level: 'debug',
+        transports: [
+          // new winston.transports.File({
+          //   filename: `${process.cwd()}/log`,
+          // }),
+          new winston.transports.DailyRotateFile({
+            level: configService.get('winston_log_level'),
+            dirname: configService.get('winston_log_dirname'),
+            filename: configService.get('winston_log_filename'),
+            datePattern: configService.get('winston_log_date_pattern'),
+            maxSize: configService.get('winston_log_max_size')
+          }),
+          new winston.transports.Console({
+            format: winston.format.combine(
+              winston.format.timestamp(),
+              utilities.format.nestLike()
+            )
+          }),
+          new winston.transports.Http({
+            host: 'localhost',
+            port: 3002,
+            path: '/log'
+          })
+        ]
+      }),
       inject: [ConfigService]
     }),
     UserModule,

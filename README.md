@@ -92,7 +92,7 @@
 
 [Nest项目里如何使用Typeorm迁移](./nest-typeorm-migration/README.md)
 
-[会议室预定系统-会议室管理模块-统计管理模块](./meeting_room_booking_system_backend/README.md)
+[会议室预定系统-会议室管理模块-集成日志框架winston](./meeting_room_booking_system_backend/README.md)
 
 [会议室预订系统-前端模块-会议室预定历史](./meeting_room_booking_system_frontend_user/README.md)
 

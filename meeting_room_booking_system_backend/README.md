@@ -881,3 +881,59 @@ ConfigModule.forRoot({
 - `docker-compose.yml`添加`minio`配置
 - 使用 `@nestjs/mapped-types` 的 `PartialType、PickType、OmitType、IntersectionType` 来灵活创建 dto。
 - captcha：验证码用完之后就从 `redis` 中删掉，并且前端提示验证码失效
+
+### 13. 集成winston日志框架
+- 安装winston
+
+```sh
+npm install --save nest-winston winston
+npm install --save winston-daily-rotate-file
+```
+
+- 把 winston 的 logger 设置为 Nest 的默认 Logger：
+- 把日志保存在文件里
+- 在控制台打印日志
+- 通过 http 发送到专门的日志服务器
+
+```js
+import * as winston from 'winston';
+import { utilities, WinstonModule, WinstonLogger, WINSTON_MODULE_NEST_PROVIDER } from 'nest-winston';
+// winston对typeorm的日志记录
+import { CustomTypeOrmLogger } from './CustomTypeOrmLogger';
+import 'winston-daily-rotate-file';
+
+WinstonModule.forRootAsync({
+  useFactory: (configService: ConfigService) => ({
+    level: 'debug',
+    transports: [
+      // 把日志保存在文件里 支持日志分割
+      new winston.transports.DailyRotateFile({
+        level: configService.get('winston_log_level'),
+        dirname: configService.get('winston_log_dirname'),
+        filename: configService.get('winston_log_filename'),
+        datePattern: configService.get('winston_log_date_pattern'),
+        maxSize: configService.get('winston_log_max_size')
+      }),
+      // 在控制台打印日志
+      new winston.transports.Console({
+        format: winston.format.combine(
+          winston.format.timestamp(),
+          utilities.format.nestLike()
+        )
+      }),
+      // 通过 http 发送到专门的日志服务器
+      new winston.transports.Http({
+        host: 'localhost',
+        port: 3002,
+        path: '/log'
+      })
+    ]
+  }),
+  inject: [ConfigService]
+}),
+
+// main.ts
+import { WINSTON_MODULE_NEST_PROVIDER } from 'nest-winston';
+// 把 winston 的 logger 设置为 Nest 的默认 Logger：
+app.useLogger(app.get(WINSTON_MODULE_NEST_PROVIDER));
+```
