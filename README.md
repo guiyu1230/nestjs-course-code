@@ -110,6 +110,8 @@
 
 [用Nacos实现微服务配置中心和注册中心](./nacos-node-test/README.md)
 
+[快速入门ORM框架Prisma](./prisma-test/READEME.md)
+
 [为什么前端监控系统要用RabbitMQ](./rabbitmq-test/READEME.md)
 
 [用Nodejs手写websocket协议](./my-websoket/READEME.md)
