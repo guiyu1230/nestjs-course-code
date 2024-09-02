@@ -12,6 +12,8 @@ export function Index() {
         if(userInfo) {
             const info = JSON.parse(userInfo);
             setHeadPic(info.headPic);
+        } else {
+            window.location.href = '/login';
         }
     }, []);
 

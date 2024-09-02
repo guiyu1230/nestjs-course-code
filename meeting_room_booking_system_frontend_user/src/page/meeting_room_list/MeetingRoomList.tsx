@@ -86,7 +86,7 @@ export function MeetingRoomList() {
 
         const { data } = res.data;
         if(res.status === 201 || res.status === 200) {
-            setMeetingRoomResult(data.meetingRooms.map((item: MeetingRoomSearchResult) => {
+            setMeetingRoomResult((data.meetingRooms || []).map((item: MeetingRoomSearchResult) => {
                 return {
                     key: item.id,
                     ...item

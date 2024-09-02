@@ -30,6 +30,14 @@ const queue: PendingTask[] = [];
 
 axiosInstance.interceptors.response.use(
     (response) => {
+        if(response.data && response.data.code === 401) {
+            message.error(response.data.data);
+
+            setTimeout(() => {
+                window.location.href = '/login';
+            }, 1500);
+            // return Promise.reject(response.data)
+        }
         return response;
     },
     async (error) => {
