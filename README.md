@@ -112,6 +112,8 @@
 
 [快速入门ORM框架Prisma](./prisma-test/READEME.md)
 
+[Prisma的全部命令](./prisma-all-command/READE.md)
+
 [为什么前端监控系统要用RabbitMQ](./rabbitmq-test/READEME.md)
 
 [用Nodejs手写websocket协议](./my-websoket/READEME.md)
