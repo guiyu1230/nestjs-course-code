@@ -116,6 +116,8 @@
 
 [为什么前端监控系统要用RabbitMQ](./rabbitmq-test/READEME.md)
 
+[基于redis实现关注关系](./following/README.md)
+
 [用Nodejs手写websocket协议](./my-websoket/READEME.md)
 
 [Nest开发Websocket服务](./nest-websocket/README.md)
