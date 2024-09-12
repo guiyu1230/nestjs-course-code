@@ -118,6 +118,8 @@
 
 [基于redis实现关注关系](./following/README.md)
 
+[基于redis实现各种排行榜周榜月榜年榜](./ranking-list-test/README.md)
+
 [用Nodejs手写websocket协议](./my-websoket/READEME.md)
 
 [Nest开发Websocket服务](./nest-websocket/README.md)
