@@ -10,6 +10,8 @@ import { PrismaService } from './prisma/prisma.service';
 import { APP_GUARD } from '@nestjs/core';
 import { AuthGuard } from './auth.guard';
 import { FriendshipModule } from './friendship/friendship.module';
+import { ConfigModule } from '@nestjs/config';
+import * as path from 'path';
 
 @Module({
   imports: [
@@ -27,6 +29,10 @@ import { FriendshipModule } from './friendship/friendship.module';
           }
         }
       }
+    }),
+    ConfigModule.forRoot({
+      isGlobal: true,
+      envFilePath: [path.join(__dirname, '.env')]
     }),
     FriendshipModule
   ],
