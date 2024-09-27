@@ -16,6 +16,8 @@ if (!fs.existsSync(targetFolder)) {
     fs.mkdirSync(targetFolder);
 }
 
+// const list = [];
+
 // // 处理每个链接
 while ((match = linkRegex.exec(markdownContent)) !== null) {
     index++;
@@ -24,14 +26,24 @@ while ((match = linkRegex.exec(markdownContent)) !== null) {
     // 读取链接指向的文件内容
     const filePath = path.join(__dirname, linkPath);
     if (fs.existsSync(filePath)) {
-        const fileContent = fs.readFileSync(filePath, 'utf-8');
+        let fileContent = fs.readFileSync(filePath, 'utf-8');
+        fileContent = `# ${linkText}\n\n` + fileContent;
 
+        const titleRegex = /\.\/(\S+)\/(\w+)\.md/;
+        const titleMatch = linkPath.match(titleRegex);
+        const title = titleMatch && titleMatch[1];
         // 写入内容到目标文件夹中
-        const targetFilePath = path.join(targetFolder, `${index}-${linkText}.md`);
+        const targetFilePath = path.join(targetFolder, `${index}-${title}.md`);
         fs.writeFileSync(targetFilePath, fileContent, 'utf-8');
         console.log(`File written: ${targetFilePath}`);
+        // list.push({
+        //     text: linkText,
+        //     link: `/template/${index}-${title}`
+        // })
     } else {
         console.warn(`File not found: ${filePath}`);
     }
 }
+
+// console.log(list);
 console.log('All files have been processed.');

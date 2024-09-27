@@ -125,3 +125,5 @@
 [Nest开发Websocket服务](./nest-websocket/README.md)
 
 [基于SocketIo的room实现群聊](./group-chat-room/README.md)
+
+[聊天室项目开发](./chat-room-backend/README.md)
