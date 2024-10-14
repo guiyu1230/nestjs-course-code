@@ -581,3 +581,62 @@ nest g resource friendship --no-spec
 - `friendship/reject/:id`: 拒绝申请
 - `friendship/remove/:id`: 删除好友
 
+### 3. 创建聊天室和加入群聊
+
+#### 创建聊天室表和聊天室用户关系表
+```sh
+model Chatroom {
+  id  Int @id @default(autoincrement())
+  name String @db.VarChar(50)
+  // 聊天室类型 true 群聊 false 单聊
+  type Boolean @default(false)
+  createTime DateTime @default(now())
+  updateTime DateTime @updatedAt
+}
+
+model UserChatroom {
+  userId    Int 
+  chatroomId  Int
+
+  @@id([userId, chatroomId])
+}
+```
+
+```sql
+-- CreateTable
+CREATE TABLE `Chatroom` (
+    `id` INTEGER NOT NULL AUTO_INCREMENT,
+    `name` VARCHAR(50) NOT NULL,
+    `type` BOOLEAN NOT NULL DEFAULT false,
+    `createTime` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
+    `updateTime` DATETIME(3) NOT NULL,
+
+    PRIMARY KEY (`id`)
+) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+
+-- CreateTable
+CREATE TABLE `UserChatroom` (
+    `userId` INTEGER NOT NULL,
+    `chatroomId` INTEGER NOT NULL,
+
+    PRIMARY KEY (`userId`, `chatroomId`)
+) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+```
+
+#### 执行prisma脚本创建数据表
+```sh
+# 创建数据表
+npx prisma migrate dev --name chatroom
+# 创建聊天室模块
+nest g resource chatroom --no-spec
+```
+
+#### 聊天室相关接口
+- `chatroom/create-one-to-one?friendId=1`: 创建一对一聊天
+- `chatroom/create-group?name=技术交流群`: 创建群聊室
+- `chatroom/list`: 查询当前用户的聊天室列表
+- `chatroom/members?chatroomId=1`: 查群聊天室下所有用户列表
+- `chatroom/info/:id`: 查询指定聊天室包括成员的详细信息
+- `chatroom/join/:id?joinUserId=1`: 邀请用户加入到指定群聊
+- `chatroom/quit/:id?quitUserId=1`: 用户退出指定群聊
+

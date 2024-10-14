@@ -41,6 +41,6 @@ export class FriendshipController {
 
   @Get('remove/:id')
   async remove(@Param('id') friendId: number, @UserInfo('userId') userId: number) {
-    return 'succsss'
+    return this.friendshipService.remove(friendId, userId);
   }
 }

@@ -11,6 +11,7 @@ import { APP_GUARD } from '@nestjs/core';
 import { AuthGuard } from './auth.guard';
 import { FriendshipModule } from './friendship/friendship.module';
 import { ConfigModule } from '@nestjs/config';
+import { ChatroomModule } from './chatroom/chatroom.module';
 import * as path from 'path';
 
 @Module({
@@ -34,7 +35,8 @@ import * as path from 'path';
       isGlobal: true,
       envFilePath: [path.join(__dirname, '.env')]
     }),
-    FriendshipModule
+    FriendshipModule,
+    ChatroomModule
   ],
   controllers: [AppController],
   providers: [
