@@ -86,6 +86,8 @@
 
 [实现Excel导入导出](./exceljs-test/README.md)
 
+[如何用动态代码生成ppt](./ppt-generate/README.md)
+
 [Typeorm如何保存任意层级的关系](./typeorm-tree-entity-test/README.md)
 
 [为什么生产环境要用Typeorm的migration迁移功能](./typeorm-migration/README.md)
