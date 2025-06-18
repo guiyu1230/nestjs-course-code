@@ -90,6 +90,8 @@
 
 [如何拿到服务器cpu,内存,磁盘信息](./server-status/README.md)
 
+[Nest实现国际化](./i18n-test/README.md)
+
 [Typeorm如何保存任意层级的关系](./typeorm-tree-entity-test/README.md)
 
 [为什么生产环境要用Typeorm的migration迁移功能](./typeorm-migration/README.md)
