@@ -84,6 +84,8 @@
 
 [前端直传文件到Minio](./minio-fe-upload/README.md)
 
+[大文件实现流式下载](./download-test/README.md)
+
 [实现Excel导入导出](./exceljs-test/README.md)
 
 [如何用动态代码生成ppt](./ppt-generate/README.md)
