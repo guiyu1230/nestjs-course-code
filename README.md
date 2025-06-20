@@ -76,6 +76,8 @@
 
 [Nest的3种定时任务](./schedule-task/README.md)
 
+[HttpModule和pinyin实现天气预报查询功能](./city-weather/README.md)
+
 [nest使用拦截器记录请求日志](./request-log/README.md)
 
 [短链服务自己写一个](./short-url/README.md)
